@@ -1,36 +1,24 @@
-import pandas as pd
-import json
 import streamlit as st
-import matplotlib.pyplot as plt
 
-# create a title for your app with emoji icon. text align to center.
-st.title("Streamlit App :sunglasses:")
-st.header("Hi :wave: Welcome to Streamlit App")
+from src.utils import (count_messages, create_bar_chart, create_dataframe,
+                       display_dataframe, load_json, set_up, upload_file)
 
-uploaded_file = st.file_uploader(
-    label=":blue_heart: Choose a JSON file", type='json')
-if uploaded_file is not None:
-    # Load the JSON data
-    json_data = json.loads(uploaded_file.getvalue().decode())
 
-    # If messages field is present
-    if 'messages' in json_data:
-        # Convert messages to pandas DataFrame
-        df = pd.json_normalize(json_data['messages'])
+def main():
+    set_up()
+    uploaded_file = upload_file()
+    if uploaded_file is not None:
+        json_data = load_json(uploaded_file)
+        if 'messages' in json_data:
+            df = create_dataframe(json_data)
+            display_dataframe(df)
+            message_counts = count_messages(df)
+            fig = create_bar_chart(message_counts)
+            with st.expander("Click to see the bar chart"):
+                st.pyplot(fig)
+        else:
+            st.write("The uploaded JSON file does not have 'messages' field.")
 
-        # Display the DataFrame in Streamlit
-        with st.expander("Click to see the DataFrame"):
-            st.dataframe(df)
 
-        # Count the number of messages sent by each actor
-        message_counts = df['from'].value_counts()
-
-        # Create a bar chart of the number of messages sent by each actor
-        fig, ax = plt.subplots()
-        message_counts.plot(kind='bar', ax=ax)
-        # ax.set_xlabel('Actor')
-        # ax.set_ylabel('Number of Messages)
-        with st.expander("Click to see the bar chart"):
-            st.pyplot(fig)
-    else:
-        st.write("The uploaded JSON file does not have 'messages' field.")
+if __name__ == "__main__":
+    main()
