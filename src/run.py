@@ -19,7 +19,8 @@ if uploaded_file is not None:
         df = pd.json_normalize(json_data['messages'])
 
         # Display the DataFrame in Streamlit
-        st.dataframe(df)
+        with st.expander("Click to see the DataFrame"):
+            st.dataframe(df)
 
         # Count the number of messages sent by each actor
         message_counts = df['from'].value_counts()
@@ -29,6 +30,7 @@ if uploaded_file is not None:
         message_counts.plot(kind='bar', ax=ax)
         # ax.set_xlabel('Actor')
         # ax.set_ylabel('Number of Messages)
-        st.pyplot(fig)
+        with st.expander("Click to see the bar chart"):
+            st.pyplot(fig)
     else:
         st.write("The uploaded JSON file does not have 'messages' field.")
